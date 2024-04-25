@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Example</title>
+</head>
+<body>
+    <h1>File Upload</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="userFile" id="userFile">
+        <button type="submit">Upload</button>
+      <button onclick="fetchData()">Send GET Request</button>
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var formData = new FormData();
+            formData.append('user', document.getElementById('userFile').files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data); // Handle response
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+      
+function fetchData() {
+    fetch('/images')
+        .then(response => response.json()) // assuming the response is JSON
+        .then(data => {
+            data.forEach(imageUrl => {
+                console.log(imageUrl);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+      
+    </script>
+</body>
+</html>

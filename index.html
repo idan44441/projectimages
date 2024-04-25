@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>File Upload Example</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="public/styles.css"> <!-- Add your custom CSS file -->
+    <style>
+        #previewImage {
+            width: 150px; /* Adjust the width */
+            height: 150px; /* Adjust the height */
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px; /* Add margin bottom to create space between preview image and button */
+            display: none;
+        }
+
+        #phoneNumber {
+            text-align: center; /* Center align the phone number input */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5"> <!-- Apply Bootstrap container class and add margin top -->
+        <h2 class="text-center">From the Camera directlt to you</h2> <!-- Center align the heading -->
+        <form id="uploadForm" enctype="multipart/form-data" class="text-center"> <!-- Center align the form -->
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number">
+            </div>
+            <div class="custom-file mb-3"> <!-- Add Bootstrap custom-file class and margin bottom -->
+                <input type="file" name="userFile" id="userFile" class="custom-file-input"> <!-- Add custom-file-input class -->
+                <label class="custom-file-label" for="userFile">Choose file</label> <!-- Add a label for the file input with custom-file-label class -->
+            </div>
+            <img id="previewImage" alt="Preview Image">
+            <button type="submit" class="btn btn-primary mt-3">Upload</button> <!-- Add margin top to the button -->
+        </form>
+    </div>
+
+    <script>
+        // Define the previewImage function
+        function previewImage(event) {
+            var input = event.target;
+            var reader = new FileReader();
+            reader.onload = function () {
+                var imgElement = document.getElementById('previewImage');
+                imgElement.src = reader.result;
+                imgElement.style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        // Attach the onchange event listener to the file input
+        document.getElementById('userFile').addEventListener('change', previewImage);
+
+        // Attach the submit event listener to the form
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Validate phone number
+            var phoneNumberInput = document.getElementById('phoneNumber').value;
+            var phoneNumberPattern = /^0[0-9]{9}$/; // Pattern for phone number starting with '0' and having 10 digits
+            if (!phoneNumberPattern.test(phoneNumberInput)) {
+                alert('Please enter a valid phone number starting with 0 and consisting of 10 digits.');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('user', document.getElementById('userFile').files[0]);
+            formData.append('phoneNumber', phoneNumberInput);
+
+            fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success === "ok") {
+                        alert("File uploaded successfully!");
+                    } else {
+                        alert("File upload failed. Please try again.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
